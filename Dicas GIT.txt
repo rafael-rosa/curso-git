@@ -1,0 +1,118 @@
+dicas GIT
+
+1.	Para definir o editor padrão para o Sublime:
+	git config --global core.editor "'c:/program files/sublime text 3/subl.exe' -w"  
+
+2.	Para definir uma pasta como um repositorio git
+	git init
+
+3.	Para ver as versões (branches) de um repositorio
+	git tag
+
+4.	Trocar de branch - Se queremos visualizar como o nosso projeto, junto com todos os seus arquivos html, estava na versão v0.1. 
+    Para isso, basta dizer ao git que queremos buscar a versão v0.1. Chamamos esse processo de checkout
+    git checkout v0.1
+
+5.	E se entre a versão v0.2 e a v0.1 surgiu um bug? No nosso caso, queremos ver as diferenças entre a versão v0.2 e a v0.1, 
+	o que conseguimos com o Git através do comando git diff, onde indicamos entre quais versões desejamos visualizar as diferenças.
+	git diff v0.1 v0.2
+
+6. 	Gerar a chave SSH da máquina para vincular no repositório do github
+	$ ssh-keygen -t rsa -C "rafa.sr@msn.com"
+
+7.	Git add de forma interativa
+	git add -i
+
+8.	Fazer o commit adicionando automaticamente os arquivos alterados (não serve para arquivos novos)
+	git commit -a -m "mensagem" (Se omitir o -m, abre o editor padrão para digitar a mensagem)
+
+9.	Historico de commits
+	git log	  (Aceita a opção '-p' - 'q' sai do log)
+
+10.	Historico de commits e os arquivos alterados
+	git whatchanged (a opção -p exibe qual foi a alteração em cada arquivo)
+
+11.	Verificar os repositorios remotos atrelados ao repositorio local
+	git remote -v
+
+12.	Atrelar um repositório do github ao repositório local
+	$ git remote add origin https://github.com/rafael-rosa/curso-git.git
+
+13. Remover um repositorio remoto
+	git remote remove origin
+
+14.	Push passando o nome do repositório remoto e a branch
+	$ git push origin master
+
+15.	Outra alternativa é utilizar, no primeiro push, a opção -u ou --set-upstream. 
+	Ela atrela a branch remota à local, fazendo com que não seja mais necessário passar 
+	como parâmetros a origem e a branch no comando push, que fica então assim: git push.
+
+16.	Como descobrir quem realizou as alterações em um arquivo linha a linha?
+	git blame index.html
+
+17.	verificar quais os arquivos que pertencem ao nosso repositório
+	git ls-files
+
+18. listar as branches do repositorio e informar qual a branch atual
+	git branch (a opcao -r mostra as branches remotas a opcao -a mostra as locais e as remotas)
+
+19. criar uma nova branch
+	git branch <nome branch>
+
+	Se quiser criar a branch e já fazer o checkout para ela
+	git checkout -b design
+
+20. Depois de criar a nova branch, se quisermos enviá-la para o repositório, devemos usar o seguinte push
+	git push -u <nome repositorio> <nome branch>
+
+	desta forma, o git vai saber que as branchs do repositorio local e remoto devem estar ligadas
+
+21. Se outra pessoa quiser baixar a nova branch em sua maquina
+	git branch -t <nome branch local> <nome repositorio remoto>/<nome branch remota>
+	(de preferencia o nome da branch local deve ser igual a remota)
+
+22. Criação de uma branch local com o mesmo nome da branch remota
+	Mudança para essa nova branch criada
+	Criação de link entre a branch local e remota
+	git checkout -t origin/design - todo esse trabalho é feito automaticamente para a branch chamada design
+
+23. caso seu repositório local só tenha uma origin, já saiba que existe uma branch remota chama design, 
+	e não exista ainda uma branch local de mesmo nome, o comando git checkout design também faz esse processo todo de uma vez
+
+24. Exclusão de branch remota
+	git push -d origin design
+	git push origin :design
+
+25. Como saber se foram criadas branches novas no repositório remoto
+	git fetch origin
+
+26. Apagar uma branch (depois que o trabalho desenvolvido nela for concluído)
+	git branch -d <nome branch>
+
+27. Fazer o merge das alterações de uma branch para master
+	Tudo que você tem a fazer é executar o checkout do branch para onde deseja fazer o merge e então rodar o comando git merge:
+
+	git checkout master
+	git merge <nome branch>
+
+28. Alterar a mensagem de um commit
+	Não é aconselhável você alterar a mensagem de um commit que já foi feito o push. Pode causar muitos conflitos. Portanto, sempre verifique a mensagem de commit antes de enviá-lo.
+	git log
+	git rebase -i bb6f78c1a43f8f2e541d74b887a5a222f013b36b
+	Ao abrir o editor, marque com a palavra ‘edit’ (sem aspas) o commit que vc quer alterar. Salve e saia.
+	Vamos abrir o editor para alterar o commit que marcamos como ‘edit’ (sem aspas):
+	git commit --amend
+	
+29. Ferramentas visuais de merge
+	O comando git mergetool --tool-help mostra no console uma lista de programas possíveis de ser utilizados. 
+	Dessa lista, pode-se escolher um, instalar no seu computador e utilizar através do comando 
+	git mergetool -t nome_do_programa
+
+30.	Boas práticas
+	a.	Cada desenvolvedor deve trabalhar criando suas próprias branches locais, ao final do desenvolvimento, ele deve fazer o merge com a branch
+		master (remota), para evitar conflitos na hora de aplicar o merge, ele deve:
+		-fazer checkout para a branch master e baixar as atualizações (pull)
+		-o próximo passo é aplicar as atualizações da master na branch local que ele usou para fazer o desenvolvimento: 
+			git rebase <branch que servira de base para atualizacao> <branch que queremos atualizar>
+			exemplo: git rebase master desenvolvimento
