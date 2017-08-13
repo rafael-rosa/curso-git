@@ -110,9 +110,20 @@ dicas GIT
 	git mergetool -t nome_do_programa
 
 30.	Boas práticas
-	a.	Cada desenvolvedor deve trabalhar criando suas próprias branches locais, ao final do desenvolvimento, ele deve fazer o merge com a branch
-		master (remota), para evitar conflitos na hora de aplicar o merge, ele deve:
-		-fazer checkout para a branch master e baixar as atualizações (pull)
-		-o próximo passo é aplicar as atualizações da master na branch local que ele usou para fazer o desenvolvimento: 
-			git rebase <branch que servira de base para atualizacao> <branch que queremos atualizar>
-			exemplo: git rebase master desenvolvimento
+	1.	
+		a.	Cada desenvolvedor deve trabalhar criando suas próprias branches locais, ao final do desenvolvimento, ele deve fazer o merge com a branch
+			master (remota), para evitar conflitos na hora de aplicar o merge, ele deve:
+			-fazer checkout para a branch master e baixar as atualizações (pull)
+			-o próximo passo é aplicar as atualizações da master na branch local que ele usou para fazer o desenvolvimento: 
+				git rebase <branch que servira de base para atualizacao> <branch que queremos atualizar>
+				exemplo: git rebase master desenvolvimento
+
+		b.	Uma outra opção é ir até a branch de desenvolvimento
+			git checkout desenvolvimento
+			e a partir desta branch, puxar as alterações da branch master
+			git rebase master
+
+		c. Se ocorrem conflitos durante a execução do rebase, temos as seguintes opções
+			git rebase --abort -> abortar a resolução do conflito e voltar atrás no rebase, ou seja, voltar ao ponto que se estava antes de realizar o rebase.
+			git rebase --skip -> descartar o seu commit atual que gera o conflito
+			
