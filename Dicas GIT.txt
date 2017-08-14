@@ -29,6 +29,14 @@ dicas GIT
 9.	Historico de commits
 	git log	  (Aceita a opção '-p' - 'q' sai do log)
 
+	--pretty=oneline
+	--pretty=short
+	--prety=full
+	--stat
+	--graph (mostra as branches)
+
+	git log --pretty='%an realizou commit em %ad: %s' --graph
+
 10.	Historico de commits e os arquivos alterados
 	git whatchanged (a opção -p exibe qual foi a alteração em cada arquivo)
 
@@ -127,3 +135,176 @@ dicas GIT
 			git rebase --abort -> abortar a resolução do conflito e voltar atrás no rebase, ou seja, voltar ao ponto que se estava antes de realizar o rebase.
 			git rebase --skip -> descartar o seu commit atual que gera o conflito
 			
+	2. É sempre melhor criar pequenos commits com pouco conteúdo ao invês de grandes alterações em um unico commit
+
+
+31.	Descartando as alterações feitas em um arquivo - Se ainda não foi feito o commit (antes de ter feito o add) - Desfazer do working directory
+	git checkout <nome arquivo>
+
+	para trazer as alterações da branch master de somente um arquivo
+	git checkout master <nome arquivo>
+
+	Como vimos, o comando git checkout serve tanto para trocar de branch quanto descartar alterações de um arquivo do working directory. Mas se possuímos um arquivo e uma branch com o mesmo nome, o Git trata como padrão considerar que o usuário quer mudar de branch. Precisamos então de uma alternativa para diferenciar a branch do arquivo.
+	Para isso existe uma notação no comando git checkout, que indica que daqui pra frente só serão listados arquivos. Digamos que temos as branches design e master (e estamos na master) e o arquivo design que na master contém alterações. Para garantir que vamos restaurar o arquivo, precisamos usar o seguinte comando:
+
+	git checkout -- design
+
+
+32.	Descartando as alterações feitas em um arquivo - Após ter feito o add - retirar do estado de index
+	git reset HEAD <nome arquivo>
+
+	--hard Com este comando, as alterações são removidas do histórico local de commits e também tanto do index quanto do working directory, permanentemente.
+	--soft Com este comando, as alterações são removidas do histórico local de commits, mas não são removidas do index.
+	--<sem parametro> Com este comando, as alterações são removidas do histórico local de commits, do index, mas não doworking directory`.
+
+	Ao digitarmos HEAD~ seguido de um número inteiro n, será feita uma referência ao n-ésimo commit anterior ao HEAD. Por exemplo, HEAD~1, faz referência ao penúltimo commit e HEAD~2, ao antepenúltimo. No caso específico do penúltimo commit, também pode-se referenciá-lo utilizando o atalho HEAD^.
+
+33.	Desfazer um commit - Só deve ser usado quando se quer desfazer um commit recente, pois todos os commits posteriores ao que se voltou, serao perdidos
+	git reset HEAD <id do commit anterior ao que se quer voltar>
+
+34. Reverter um commit antigo
+	git revert <id do commit> - Isto criará um novo commit desfazendo o outro commit e os commits posteriores não serão perdidos
+
+	Uma boa alternativa para maior flexibilidade é a opção "-n", para que as alterações sejam revertidas e adicionadas ao nosso Working Directory e Index. Assim podemos fazer alterações adicionais antes de criar um novo commit de reversão.
+
+	git revert -n [hash_do_commit]
+
+35. Quando se quer guardar as alterações que ainda não foram adicionadas (add) para retomá-las depois, podemos usar o commando 
+	
+	git stash
+	
+	Ao fazer isto, o repositorio volta ao estado antes de alterarmos os arquivo, desta forma podemos corrigir outra coisa mais prioritaria (por exemplo)
+	e fazer o commit dela. Ai, para retomarmos o que estávamos fazendo, usamos o commando
+	
+	git stash pop - Retoma o ultimo item do stash
+	
+	ou então podemos passar o codigo do stash que queremos retomar
+	
+	git stash appy stash@{0}
+
+	os itens (e codigos) que estão guardados no stash podem ser verificados pelo commando
+
+	git stash list
+
+36. limpando o stash
+	git stash drop
+
+37.	GIT BISECT - Quando desejamos identificar qual commit mexeu em determinado código primeiro
+	Precisamos elencar um commit que ACHAMOS que é um bom canditado para ter alterado primeiro o código, o bisect vai tentar identificar qual foi o o mommento da alteração desde o commit que passamos como parametro:
+
+	git bisect start
+
+	o primeiro commit que passamos é o que achamos que é ruim:
+	git bisect bad HEAD (estado atual)
+
+	o segundo é o commit que sabemos que está bom
+	git bisect good <id do commit onde o codigo estava bom>
+
+	A partir daí, o bisect vai ir voltando o estado do arquivo para diversos commits, você olha no editor se o arquivo está do jeito que você considera certo, e vai no terminal e digita 
+
+	git bisect <good> ou  <bad> 
+
+	O bisect vai ir "cercando" os commits ate achar aquele que você quer.
+
+	=======================================================
+	explicacao bisect
+
+	Imagine que após algum tempo, uma funcionalidade que estava correta, parou de funcionar subitamente em nosso projeto. Um link, que antes funcionava, parou de funcionar e não sabemos quando fizemos a alteração que causou esse problema. Sabemos, porém, uma data aproximada de quando funcionava, por exemplo na segunda-feira.
+
+	Com o comando "git log", podemos encontrar o hash do primeiro commit daquele dia; é um bom ponto de partida.
+
+	git bisect start
+    git bisect bad HEAD
+	Acima, iniciamos uma sessão de "bisect" e marcamos o commit HEAD como "bad" (ruim), ou seja, indicamos que ele contém o bug o qual queremos encontrar o momento em que foi introduzido.
+
+	Agora precisamos marcar qual commit deve ser utilizado como estando OK:
+
+	git bisect good 02bfc44
+
+	Agora que o Git sabe qual commit funciona e qual não funciona, ele automaticamente faz o checkout de um commit intermediário para que possamos verificar se funciona
+
+	Podemos testar agora se, nesse ponto, nossa funcionalidade estava OK. Caso não esteja, precisamos marcar o commit atual como "ruim":
+
+	git bisect bad
+
+	Por dedução lógica, todos os commits posteriores ao atual também estão defeituosos. Agora o Git conhece um novo intervalo de commits para buscar pelo erro, com metade do tamanho do intervalo anterior
+	=======================================================
+
+38.	Para ver as alterações feitas em um commit
+	git show <id commit>
+
+39.	Criar alias para os commandos do git
+	-Basta editar o arquvio .gitconfig na pasta do seu usuário e criar uma seção [alias]
+	-é possível inclusive combinar vários comandos em um só.
+	[alias]
+  	envia = !git checkout master && git pull && git checkout desenvolvimento && git rebase master && git checkout master && git merge desenvolvimento && git push
+
+  	publica = !git checkout master && git pull && git checkout dev && git rebase master && git checkout master && git merge dev && git push
+
+  	Agora, ao rodar o comando git publica, todo o processo abaixo será feito, em ordem, e interrompido caso o anterior falhe:
+	git checkout master: altera o local de trabalho para a branch master
+	git pull: atualiza o histórico da branch master
+	git checkout dev: altera o local de trabalho para a branch dev
+	git rebase master: atualiza o HEAD da branch dev para receber as alterações da branch master
+	git checkout master: altera o local de trabalho novamente para a branch master
+	git merge dev: mescla as alterações da branch dev na master
+	git push: envia suas alterações para o repositório remoto
+
+	A ! permite a criação de um atalho utilizando qualquer comando válido da linha de comando. Com isso, não ficamos presos apenas aos comandos do Git para usar no terminal. Na verdade, podemos usar qualquer programa que esteja instalado no sistema e tenha um executável na linha de comando.
+
+  	-Para adicionar um alias para o usuario via linha de comando (mesmo efeito de editar o arquivo manualmente)
+  	git config --global alias.r reset    (sem a opção --global, o alias é criado somente no repositorio em que o comando foi executado)
+
+  	Adicionando cores na saída do console
+  	
+  	o Git permite que habilitemos cores para a visualização dos diffs. Para isso, basta editar o arquivo .gitconfig, adicionando a seção [color] no arquivo, com a entrada diff indicando que queremos cores para a visualização dos diffs:
+
+	[color]
+  	diff = auto
+
+  	Também é possível adicionar cores para as saídas de outros comandos como, por exemplo, o branch, onde a branch atual é mostrada em outra cor, e o status, onde cada estado do arquivo é mostrado em uma cor diferente.
+
+40. Colaborando com projetos opensource
+	-Caso desejamos colaborar em um projeto do qual nao temos permissao para fazer push no repositorio, podemos criar um "fork" do projeto na nossa conta do github e após fazermos as alterações que desejamos, podemos criar um pull request lá no projeto da pessoa que fizemos o fork. Se a pessoa aceitar o pull request suas alterações entrarão no projeto dela.
+
+	-Se quisermos manter o nosso repositorio (que fizemos o fork) atualizado com o repositorio do dono do projeto, devemos ir no nosso repositorio e adicionar um repositorio remoto que aponta para o repositorio original do projeto:
+
+	git remote add original <URL do repositorio do dono do projeto>
+
+	dai basta baixarmos as atualizações do projeto no nosso repositorio
+
+	git pull original master
+
+	Após enviar as alterações para o repositorio remoto, basta ir no github e enviar o pull request por lá
+
+41.	Para baixar as alterações do repositório remoto mas não aplicá-las
+	git fetch <repositorio>
+
+	O comando fetch apenas realizará o download das novas alterações que não temos ainda em nosso repositório, mas não vai aplicá-las ainda.
+
+	Para aplicar as alterações, devemos indicar, através do comando git merge, que queremos trazer as alterações do repositório original que estão na branch master. Dessa forma, teremos:
+
+	git merge original/master
+
+
+42.	git cherry-pick
+	Serve para selecionar somente um commit específico. Por exemplo: Estamos fazendo alterações na branch de desenvolvimento mas precisamos levar 
+	um commit específico para a branch master. O git merge ou o git rebase carregam todos os commits de uma branch para outra.
+	Utilização:
+	faço checkout para a branch que receberá o commit
+	git checkout master
+	depois faço o cherrypick passando o id do commit da outra branch
+	git cherry-pick 19f0bb7d8b4be8ecd687b48fca301b71b95eab41
+
+	A opção -n ou --no-commit permite que recuperemos as alterações de um dado commit sem precisar inseri-lo no histórico local. Ou seja, esta opção permite não gerar o commit de cherry-pick, fazendo com que as alterações sejam adicionadas ao index. Esta é uma boa prática, pois ainda pode-se corrigir o código.
+
+	Para pegar todos os commits dentro de um intervalo, devemos escrever o hash do commit mais antigo seguido por dois pontos sem espaço e seguido pelo hash do commit mais recente
+
+	git cherry-pick abcd..1234
+
+
+	O cherry-pick pode trazer alguns problemas, pois se tentarmos trazer um commit que depende de outros commits, poderá causar conflitos. Às vezes, trazer um commit isolado, sem os commits ao redor, pode gerar problemas de merge ou até mesmo problemas no código
+
+
+43. Sugestão de ferramenta gráfica para git
+	git cola
